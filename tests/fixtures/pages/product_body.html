@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<!--
+  FIXTURE: Product page — Extraction Strategy 3 (body text search)
+
+  Expected extraction:
+    Product name: "Professional Bleach Kit"
+    Ingredients: "Ammonium Persulfate, Potassium Persulfate, Sodium Persulfate"
+    Scope reason: URL match (bleach) / ingredient match (Persulfate)
+
+  Ingredients appear as a label:value line in body text with no heading element.
+  The stop marker "How to use" terminates the ingredient slice.
+-->
+<html>
+<head><title>Professional Bleach Kit - TestBrand</title></head>
+<body>
+  <h1>Professional Bleach Kit</h1>
+
+  <div class="product-details">
+    <p>For maximum lightening in a single session.</p>
+    <p>Ingredients: Ammonium Persulfate, Potassium Persulfate, Sodium Persulfate</p>
+    <p>How to use: Mix one sachet of powder with developer in a non-metallic bowl.</p>
+    <p>Results: Up to 7 levels of lift.</p>
+  </div>
+</body>
+</html>

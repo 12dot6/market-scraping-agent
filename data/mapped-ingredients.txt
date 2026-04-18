@@ -1,0 +1,20 @@
+Ingredients | Internal Name
+Paraffinum Liquidum | Test Paraffin
+Aqua | Test Water
+Monoethanolamine | Test Amino Base
+Steareth-21 | Test Emulso 21
+Steareth-2 | Test Emulso 2
+Cetearyl Alcohol | Test Wax Blend
+Ceteareth-20 | Test Surfwax 20
+Phenylenediamine | Test Chromamine
+Trideceth-2 | Test Solvo 2
+Carboxamide MEA | Test Foam Aid
+Resorcinol | Test Dye Anchor
+Fragrance | Test Aroma Mix
+Polyquaternium-22 | Test Cond Polymer 22
+Xanthan Gum | Test Gel Base
+Dicetyl Phosphate | Test Lipid Phospho
+Ceteth-10 Phosphate | Test Ceto Phos 10
+Ascorbic Acid | Test Vit-C Stabilizer
+Sodium Sulphite | Test Antioxidant Salt
+Diamino Phenoxyethanol Dihydrochloride | Test Dye Coupler DH

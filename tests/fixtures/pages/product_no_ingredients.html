@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<!--
+  FIXTURE: Product page — No ingredients listed (step 3d)
+
+  Expected extraction:
+    Product name: "Colour Application Brush"
+    Ingredients: "Not listed"
+    Scope: OUT OF SCOPE (no colour/dye keyword in URL or title, no dye actives)
+
+  This page tests that the command correctly:
+    1. Exhausts all 4 extraction strategies and finds nothing
+    2. Records "Not listed" for ingredients
+    3. Excludes the product from scope (no scope keywords, no dye actives)
+-->
+<html>
+<head><title>Colour Application Brush - TestBrand</title></head>
+<body>
+  <h1>Colour Application Brush</h1>
+  <p>Professional-grade brush for precise colour application at the roots.</p>
+  <p>Made from heat-resistant materials. Easy to clean.</p>
+</body>
+</html>

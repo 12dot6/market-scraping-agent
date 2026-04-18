@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<!--
+  FIXTURE: Product page — Extraction Strategy 2 (heading scan)
+
+  Expected extraction:
+    Product name: "Colour-Safe Toning Shampoo"
+    Ingredients: "Aqua, Sodium Laureth Sulfate, Acid Violet 43, Citric Acid, Phenoxyethanol, Parfum"
+    Scope reason: ingredient match (Acid Violet) / title match (Colour-Safe)
+
+  The heading <h3>Ingredients</h3> is immediately followed by the ingredient text.
+  The next heading <h3>How to Use</h3> marks the end of the ingredient block.
+-->
+<html>
+<head><title>Colour-Safe Toning Shampoo - TestBrand</title></head>
+<body>
+  <h1>Colour-Safe Toning Shampoo</h1>
+  <p>Maintains vibrancy between salon visits.</p>
+
+  <h3>Key Benefits</h3>
+  <ul>
+    <li>Protects colour-treated hair</li>
+    <li>Adds shine and softness</li>
+  </ul>
+
+  <h3>Ingredients</h3>
+  <p>Aqua, Sodium Laureth Sulfate, Acid Violet 43, Citric Acid, Phenoxyethanol, Parfum</p>
+
+  <h3>How to Use</h3>
+  <p>Apply to wet hair, lather, and rinse.</p>
+</body>
+</html>

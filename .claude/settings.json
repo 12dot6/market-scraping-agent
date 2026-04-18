@@ -1,0 +1,28 @@
+{
+  "hooks": {
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "find \".playwright-mcp\" -maxdepth 1 -type f -delete 2>/dev/null || true",
+            "statusMessage": "Cleaning up Playwright logs..."
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "Skill(update-config)",
+      "Skill(update-config:*)",
+      "mcp__playwright__browser_navigate",
+      "mcp__playwright__browser_snapshot",
+      "mcp__playwright__browser_click",
+      "mcp__playwright__browser_close",
+      "mcp__playwright__browser_tabs",
+      "mcp__playwright__browser_run_code",
+      "mcp__playwright__browser_evaluate"
+    ]
+  }
+}

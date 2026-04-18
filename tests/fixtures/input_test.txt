@@ -1,0 +1,10 @@
+# input_test.txt — integration test URLs
+#
+# These point to a local HTTP server serving tests/fixtures/pages/.
+# To use:
+#   1. Start the server:  python -m http.server 8765 --directory tests/fixtures/pages
+#   2. Copy this file to input.txt (project root)
+#   3. Run:  /get-ingredients
+#   4. Validate outputs:  pytest tests/test_output_schema.py
+#
+http://localhost:8765/collection.html

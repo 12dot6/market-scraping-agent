@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!--
+  FIXTURE: Product page — Extraction Strategy 4 (INCI ALL-CAPS fallback)
+
+  Expected extraction:
+    Product name: "Intensive Hair Dye Dark Brown"
+    Ingredients: "AQUA, CETEARYL ALCOHOL, MONOETHANOLAMINE, RESORCINOL, P-PHENYLENEDIAMINE, PARFUM, PHENOXYETHANOL, SODIUM SULPHITE"
+    Scope reason: URL match (dye) / ingredient match
+
+  No heading or label signals ingredients — the INCI block is the only structured data.
+  The surrounding text uses mixed case so the ALL-CAPS INCI block stands out.
+-->
+<html>
+<head><title>Intensive Hair Dye Dark Brown - TestBrand</title></head>
+<body>
+  <h1>Intensive Hair Dye Dark Brown</h1>
+  <p>Our most intense formula for naturally dark hair.</p>
+  <p>For professional use only. Perform an allergy test 48 hours before use.</p>
+
+  <div class="legal-text">
+    AQUA, CETEARYL ALCOHOL, MONOETHANOLAMINE, RESORCINOL, P-PHENYLENEDIAMINE,
+    PARFUM, PHENOXYETHANOL, SODIUM SULPHITE
+  </div>
+
+  <p>Made in the EU. Keep out of reach of children.</p>
+</body>
+</html>

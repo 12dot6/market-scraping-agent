@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<!--
+  FIXTURE: Product page — Extraction Strategy 1 (tab/accordion)
+
+  Expected extraction:
+    Product name: "Permanent Colour Cream 5.0 Brown"
+    Ingredients: "AQUA, CETEARYL ALCOHOL, RESORCINOL, MONOETHANOLAMINE, P-PHENYLENEDIAMINE, PHENOXYETHANOL, PARFUM"
+    Scope reason: ingredient match (Resorcinol, P-Phenylenediamine)
+-->
+<html>
+<head><title>Permanent Colour Cream 5.0 Brown - TestBrand</title></head>
+<body>
+  <h1>Permanent Colour Cream 5.0 Brown</h1>
+  <p>Rich, long-lasting colour with 100% grey coverage.</p>
+
+  <div class="product-tabs">
+    <button class="tab" data-target="description">Description</button>
+    <button class="tab" data-target="ingredients">Ingredients</button>
+    <button class="tab" data-target="how-to-use">How to Use</button>
+  </div>
+
+  <div id="description" class="tab-panel">
+    <p>Our permanent formula delivers vibrant colour from root to tip.</p>
+  </div>
+
+  <div id="ingredients" class="tab-panel" style="display:none;">
+    AQUA, CETEARYL ALCOHOL, RESORCINOL, MONOETHANOLAMINE, P-PHENYLENEDIAMINE,
+    PHENOXYETHANOL, PARFUM
+  </div>
+
+  <div id="how-to-use" class="tab-panel" style="display:none;">
+    <p>Apply to dry hair. Leave for 30 minutes. Rinse thoroughly.</p>
+  </div>
+</body>
+</html>

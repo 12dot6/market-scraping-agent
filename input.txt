@@ -1,0 +1,15 @@
+# input.txt — URL batch list for /get-ingredients
+#
+# Add one URL per line.
+# Lines starting with # are ignored. Blank lines are ignored.
+#
+# Run /get-ingredients (no arguments) to process all URLs in this file.
+# Each domain produces its own dated output file in output/.
+#
+# Example:
+# https://www.loreal-paris.co.uk/hair-colour
+# https://www.schwarzkopf.co.uk/en-GB/products/hair-colour.html
+# https://www.wella.com/professional/en-GB/hair-products/hair-colour
+https://www.loreal-paris.co.uk/excellence/excellence-creme-3-natural-darkest-brown-permanent-hair-dye
+https://www.loreal-paris.co.uk/preference/preference-vivids-permanent-gel-hair-dye-bright-red-8-624
+https://www.ulta.com/p/colorcharm-permanent-cream-hair-color-pimprod2051483?sku=2639163

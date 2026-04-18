@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<!--
+  FIXTURE: Collection page (step 2b — Level 1 product link discovery)
+
+  Expected behaviour:
+  - /products/colour-cream, /products/toning-shampoo, /products/bleach-kit → product links (kept)
+  - /products/colour-brush → product link, but title/URL has no scope keyword
+  - /about, /blog/tips → excluded (excluded segments)
+  - ?sort=price → excluded (query string)
+  - https://otherbrand.com/... → excluded (external domain)
+-->
+<html>
+<head><title>Hair Colour Range - TestBrand</title></head>
+<body>
+  <h1>Our Hair Colour Range</h1>
+  <ul>
+    <li><a href="/products/colour-cream">Permanent Colour Cream</a></li>
+    <li><a href="/products/toning-shampoo">Colour-Safe Toning Shampoo</a></li>
+    <li><a href="/products/bleach-kit">Professional Bleach Kit</a></li>
+    <li><a href="/products/colour-brush">Colour Application Brush</a></li>
+    <li><a href="/about">About Us</a></li>
+    <li><a href="/blog/tips">Hair Tips Blog</a></li>
+    <li><a href="/products/colour-cream?sort=price">Sort by Price</a></li>
+    <li><a href="https://otherbrand.com/products/dye">External Link</a></li>
+  </ul>
+</body>
+</html>

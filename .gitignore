@@ -1,0 +1,11 @@
+# Personal machine-specific settings (permissions, debug commands)
+.claude/settings.local.json
+
+# Generated output — produced by /get-ingredients, not part of the template
+output/*.md
+output/*.csv
+output/archive/*.md
+output/archive/*.csv
+
+# Playwright MCP temp logs (auto-cleaned on session stop)
+.playwright-mcp/
