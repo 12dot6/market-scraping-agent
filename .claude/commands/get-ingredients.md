@@ -2,96 +2,140 @@ Scrape ingredients from hair colour and dye-adjacent product pages.
 
 **Input — two modes:**
 - `/get-ingredients <URL>` — scrape a single URL passed as the argument.
-- `/get-ingredients` (no argument) — read `input.txt` from the project root; each non-blank, non-comment line is treated as one URL. Lines starting with `#` are ignored. If the file is missing or contains no valid URLs, stop and tell the user.
+- `/get-ingredients` (no argument) — read `input.txt` from the project root; skip blank lines and lines starting with `#`. Stop if file is missing or has no valid URLs.
 
-Collect all URLs into `url_list` before proceeding. Process all of them in the steps below.
+Collect all URLs into `url_list` before proceeding.
+
+---
+
+## Token efficiency rules (apply throughout)
+
+- **Never call `mcp__playwright__browser_snapshot` or `mcp__playwright__browser_take_screenshot`** — use `mcp__playwright__browser_evaluate` with targeted JS for all data extraction.
+- **Never store full ingredient text in memory across multiple products.** Discard raw text after writing; keep only tokenised ingredient names for CSV aggregation.
+- **Cap products per source URL at 100.** Note the cap in the output frontmatter if hit.
+- **Do not load reference data (`mapped-ingredients.txt`, `ingredients-master.csv`) until step 7**, after all scraping is complete. These files must not sit in context during browser work.
+- **Combine all ingredient extraction strategies into a single `browser_evaluate` call** (see step 3b). Never make multiple probing calls to understand page structure first.
 
 ---
 
 Follow these steps exactly:
 
-1. **Close any open Playwright sessions** — call `mcp__playwright__browser_close` once at the start if a session is active. Do not close between URLs — keep the browser open for the entire batch.
+1. **Close any open Playwright sessions** — call `mcp__playwright__browser_close` once at the start. Keep the browser open for the entire batch.
 
 2. **For each URL in `url_list`**, navigate and discover products:
 
-   a. Navigate to the URL using `mcp__playwright__browser_navigate`. If a cookie/consent dialog appears, dismiss it before proceeding.
+   a. Navigate with `mcp__playwright__browser_navigate`. Dismiss any cookie/consent dialog via `browser_evaluate` (find and `.click()` a button by text/aria-label matching accept/agree/close/consent).
 
-   b. **Discover product links** — use `mcp__playwright__browser_evaluate` to collect all `<a href>` links on the page. Apply this two-level strategy:
+   b. **Discover product links** via `browser_evaluate`. Two-level strategy:
 
-      **Level 1 — Direct product links:** Links whose href matches any of these patterns (in order of preference):
-      - Contains `/p/`
-      - Contains `/products/`
-      - Contains `/professional-hair-products/`
-      - Contains `/product/`
-      - Contains `/color/` or `/colour/` or `/hair-color/` or `/hair-colour/`
-      - Any other repeating URL pattern where many links share the same sub-path structure and the URLs are leaf-level (not a category or filter page)
+      **Level 1 — Direct product links:** href contains `/p/`, `/products/`, `/professional-hair-products/`, `/product/`, `/color/`, `/colour/`, `/hair-color/`, `/hair-colour/`, or any repeating leaf-level URL pattern.
+      Exclude hrefs containing: `/brands/`, `/c/`, `/collections`, `/category`, `/blog`, `/about`, `/search`, `?`, `#`, or external domains.
 
-      Exclude links containing: `/brands/`, `/c/`, `/collections`, `/category`, `/blog`, `/about`, `/search`, `?`, `#`, or pointing to external domains.
+      **Level 2 — If no direct links found:** Navigate intermediate collection sub-pages on the same domain, collect Level-1 links from each. Deduplicate across all pages.
 
-      **Level 2 — If no direct product links found:** The page is likely a collection/lines index. Identify intermediate collection links (sub-pages on the same domain that are not products themselves), navigate to each, and collect product links using Level 1 criteria. Deduplicate across all collection pages.
+   c. **Scope pre-filter (URL/title only — do not load reference data):** Keep a product if its URL or title contains any of: `color`, `colour`, `dye`, `tint`, `toner`, `bleach`, `developer`, `lightener`, `highlight`, `balayage`, `ombre`, `grey coverage`, `gray coverage`, `color-safe`, `colour-safe`, `color protection`, `color depositing`, or suggests a shampoo/conditioner/mask in a colour care line.
 
-   c. **Scope filter — hair colour and dye-adjacent products only:** A product is in scope if any of the following are true:
-      - Its URL or title contains: `color`, `colour`, `dye`, `tint`, `toner`, `bleach`, `developer`, `lightener`, `highlight`, `balayage`, `ombre`, `grey coverage`, `gray coverage`, `color-safe`, `colour-safe`, `color protection`, `color depositing`
-      - Its URL or title suggests it is a shampoo/conditioner/mask sold as part of a colour care or colour line
-      - After scraping, its ingredients contain known hair-dye actives: `p-Phenylenediamine`, `Resorcinol`, `Aminophenol`, `Hydrogen Peroxide`, `Persulfate`, `Acid Violet`, `Basic Red`, `HC Red`, `HC Blue`, `HC Yellow`, `Disperse Violet`, `Lawsone`, `Indigo`
+      If the source URL is already a hair-colour category path (e.g. `/hair-color/`, `/color/lines`), treat all discovered products as in scope — skip this filter entirely.
 
-      If the input URL is already a hair-colour-specific category (e.g. `/hair-color/`, `/color/lines`), treat all discovered products as in scope and skip the filter. Deduplicate all product URLs by href.
+      Products that pass URL/title filter are **tentatively in scope**. Products that fail are marked excluded immediately — do not scrape their ingredients.
 
-3. **For each product URL**, scrape ingredients:
+      Deduplicate all product URLs by href.
+
+3. **For each tentatively in-scope product URL**, scrape ingredients:
+
    a. Navigate to the product page.
-   b. Try these extraction strategies **in order**, stopping at the first that yields text:
 
-      **Language note:** Pages may be in any language. Recognise ingredient headings in all languages, including but not limited to: English "Ingredients", French "Ingrédients" / "Composition", German "Inhaltsstoffe" / "Zutaten", Spanish "Ingredientes" / "Composición", Italian "Ingredienti" / "Composizione", Portuguese "Ingredientes" / "Composição", Dutch "Ingrediënten" / "Samenstelling", Polish "Składniki", Japanese "成分" / "全成分", Korean "전성분" / "성분", Chinese "成分" / "配方成分", Arabic "المكونات". Apply the same logic to stop-words in the body-text search (translate the stop list to the page language as needed).
+   b. **Extract ingredients in a single `browser_evaluate` call** using this combined strategy — try each in order, return the first result with >30 chars:
 
-      - **Tab/accordion:** Look for a clickable element (button, tab, h3, h4, div) whose text matches an ingredient heading in any language (see above) and click it, then wait briefly for content to expand.
-      - **Heading scan:** Find any heading (h1–h4, strong, label) containing an ingredient heading in any language and read the text following it until the next heading or section break.
-      - **Body text search:** Search `document.body.innerText` for an ingredient keyword in any language (see above, case-insensitive). Slice ~3000 chars forward from that position. Stop at the first of: `How to use`, `Features`, `Results`, `Our active`, `Product Details`, `Ratings`, `Read More`, `Description`, `Benefits`, `Directions` (or their equivalents in the page language).
-      - **INCI pattern fallback:** Scan the full body text for a block of comma-separated ALL-CAPS words (typical INCI lists). Extract the longest such block.
-   c. Capture: product name from page `<title>` (strip site name suffix after " - " or " | ") or the main `h1`.
-   d. **Translate if needed:** If the extracted ingredients text is not in English, translate it to English before storing. Preserve the original INCI names (they are internationally standardised and usually Latin/English already); only translate surrounding non-INCI words or labels. If the entire list is already INCI, no translation is needed.
+      ```js
+      () => {
+        const HEADING = /ingr|compos|inhalt|ingrédients|składn|成分|전성분|ingredienti|ingredientes|المكونات/i;
+        const STOP = /how to use|features|results|our active|product details|ratings|read more|description|benefits|directions/i;
+        const MAX = 1500;
+
+        // 1. Accordion/tab: find heading-matching clickable, click, read expanded body
+        const btn = [...document.querySelectorAll('button,h3,h4,[role=tab],summary')]
+          .find(el => HEADING.test(el.textContent) && el.textContent.trim().length < 60);
+        if (btn) {
+          btn.click();
+          const scope = btn.closest('[class*="Accordion" i],[class*="panel" i],[class*="tab" i]') || btn.parentElement;
+          const inner = scope && [...scope.querySelectorAll('[class*="body" i],[class*="content" i],[class*="inner" i]')]
+            .find(el => el !== btn && el.textContent.trim().length > 30);
+          const t = inner ? inner.textContent.trim().slice(0, MAX) : '';
+          if (t.length > 30) return t;
+        }
+
+        // 2. Heading scan: find heading, collect nextElementSibling text
+        const h = [...document.querySelectorAll('h1,h2,h3,h4,strong,label')]
+          .find(el => HEADING.test(el.textContent) && el.textContent.trim().length < 60);
+        if (h) {
+          let text = '', el = h.nextElementSibling;
+          while (el && text.length < MAX) { text += el.textContent; el = el.nextElementSibling; }
+          const s = text.search(STOP);
+          const result = (s > 50 ? text.slice(0, s) : text).trim().slice(0, MAX);
+          if (result.length > 30) return result;
+        }
+
+        // 3. Body text search
+        const body = document.body.innerText;
+        const idx = body.search(HEADING);
+        if (idx !== -1) {
+          let chunk = body.slice(idx, idx + MAX);
+          const s = chunk.search(STOP); if (s > 50) chunk = chunk.slice(0, s);
+          if (chunk.trim().length > 30) return chunk.trim();
+        }
+
+        // 4. INCI fallback: longest block of comma-separated CAPS-dominant text
+        const matches = body.match(/(?:[A-Z][A-Z\d\s\-\/\(\)]{5,},\s*){3,}[A-Z][A-Z\d\s\-\/\(\)]{5,}/g);
+        return matches ? matches.sort((a,b) => b.length - a.length)[0].slice(0, MAX) : null;
+      }
+      ```
+
+      **Language note:** The `HEADING` regex covers: English (Ingredients), French (Ingrédients/Composition), German (Inhaltsstoffe), Spanish/Portuguese (Ingredientes), Italian (Ingredienti), Polish (Składniki), Japanese/Chinese (成分), Korean (전성분), Arabic (المكونات). INCI names are internationally standardised — no translation needed for the ingredient list itself.
+
+   c. **Post-scrape scope check:** If URL/title didn't confirm scope, check extracted ingredients for dye actives: `p-Phenylenediamine`, `Resorcinol`, `Aminophenol`, `Hydrogen Peroxide`, `Persulfate`, `Acid Violet`, `Basic Red`, `HC Red`, `HC Blue`, `HC Yellow`, `Disperse Violet`, `Lawsone`, `Indigo`. If none found, mark excluded.
+
+   d. Capture product name from `<title>` (strip suffix after ` - ` or ` | `) or the main `h1`.
+
    e. If no ingredients found after all strategies, record `"Not listed"`.
 
    Store each result as `{ source_url, name, url, ingredients_text, available, scope_reason }`.
 
-4. **Derive a slug** for each source URL: hostname (strip `www.`) + a key path segment + current date (`YYYY-MM-DD`). Examples:
-   - `https://www.loreal-paris.co.uk/hair-colour` → `loreal-paris-hair-colour-2026-04-17`
-   - `https://www.schwarzkopf.co.uk/en-GB/products/hair-colour.html` → `schwarzkopf-hair-colour-2026-04-17`
+4. **Derive a slug** for each source URL: hostname (strip `www.`) + key path segment + date. Example: `https://www.loreal-paris.co.uk/hair-colour` → `loreal-paris-hair-colour-2026-04-17`.
 
-5. **Pre-load all reference data into memory before any file writes:**
-   a. Load `data/mapped-ingredients.txt` (pipe-delimited, skip header). Build a dict `mapping: { normalised_key → internal_name }` where normalised_key is the ingredient name lowercased and stripped of trailing hyphens/numbers.
-   b. If `output/ingredients-master.csv` exists, read it entirely into a dict `existing: { ingredient.lower() → { ingredient, internal_name, count } }`. If it does not exist, start with an empty dict.
+5. **Write MD files** — for each source URL as soon as its products are scraped:
 
-6. **Aggregate all output data in memory** (single pass — no file I/O in this step):
-   - Group all scraped results by slug: `slug_groups: { slug → { source_urls[], product_rows[], excluded_rows[] } }`. Products from different URLs that share the same slug (same domain, same day) are combined into one group.
-   - Build `run_counts: { ingredient.lower() → { ingredient, count } }` by iterating over every ingredient token across **all** in-scope products from all URLs. Use the first-seen casing as the canonical form.
+   Write/append `output/<slug>.md`:
+   - Frontmatter: `title`, `source_urls`, `scraped` (ISO 8601), `product_count`, `excluded_count`.
+   - One `##` section per in-scope product: name, URL, full ingredients text.
+   - Summary table: product name | ingredients available (Yes/No) | in-scope reason | source URL.
+   - If excluded products exist, add a collapsed `<details>` section listing them.
+   - If the file already exists (same domain, same day), append and update frontmatter totals.
 
-7. **Write one markdown file per slug group** to `output/<slug>.md`:
-   - Frontmatter: `title`, `source_urls` (list all source URLs that contributed to this slug), `scraped` (ISO 8601 date), `product_count`, `excluded_count`.
-   - One `##` section per entry in `product_rows`: product name, URL, full ingredients text.
-   - Summary table: product name | ingredients available (Yes / No) | in-scope reason | source URL.
-   - If `excluded_rows` is non-empty, add a collapsed `## Excluded Products` section.
-   - If `output/<slug>.md` already exists (same domain, same day), **append** to it: add new `##` sections after the last existing one, update `product_count`, `excluded_count`, and `source_urls` in the frontmatter to reflect combined totals, and regenerate the summary table. Do not create a new file.
+6. **Accumulate `run_counts`** across all URLs (in memory — ingredient names only, no raw text):
+   - Tokenise each in-scope product's ingredients text into individual names, then discard the raw text.
+   - Merge into `run_counts: { ingredient.lower() → { ingredient, count } }` using first-seen casing.
 
-8. **Write the updated CSV** to `output/ingredients-master.csv` in one shot (merge all URLs together):
-   - Merge `run_counts` into `existing` entirely in memory:
-     - For each entry in `run_counts`: if its lowercased key exists in `existing`, increment `count`; otherwise add a new entry.
-     - Preserve `internal_name` from `existing` rows. For new rows only, resolve `internal_name` from `mapping` using this priority (stop at first match):
-       1. Exact key match (case-insensitive).
-       2. Scraped name contains a mapping key as a substring.
-       3. Mapping key contains the scraped name as a substring.
-       4. Strip trailing numbers/hyphens from both and compare.
-       5. No match → leave `internal_name` empty.
-     - When multiple mapping keys match, prefer the longer/more specific key.
-   - Sort the merged dict values descending by `count`, then alphabetically by `ingredient` for ties.
-   - Write the sorted result as CSV (`ingredient,internal_name,count`) in a single write operation.
+7. **Load reference data and write CSV** — after all URLs are processed:
 
-9. **Report total elapsed time** — after all files are written, display a summary line:
-   - Record the start time before step 1 begins (note the wall-clock time mentally or via a `Date.now()` call in the first `browser_evaluate`).
-   - At the very end, compute elapsed time and print: `Total time: X min Y sec (HH:MM:SS start → HH:MM:SS end)`.
+   a. Read `data/mapped-ingredients.txt` (pipe-delimited, skip header) into `mapping: { normalised_key → internal_name }` where normalised_key is lowercased with trailing hyphens/numbers stripped.
+
+   b. Read `output/ingredients-master.csv` if it exists into `existing: { ingredient.lower() → { ingredient, internal_name, count } }`. Otherwise start empty.
+
+   c. Merge `run_counts` into `existing`:
+      - If key exists: increment count, preserve `internal_name`.
+      - If new: resolve `internal_name` from `mapping` using this priority (stop at first match): (1) exact, (2) scraped name contains mapping key, (3) mapping key contains scraped name, (4) strip trailing numbers/hyphens and compare. Prefer longer/more specific match. Leave blank if no match.
+
+   d. Sort descending by `count`, then alphabetically by `ingredient` for ties.
+
+   e. Write `output/ingredients-master.csv` as `ingredient,internal_name,count`.
+
+8. **Report elapsed time:** `Total time: X min Y sec (HH:MM:SS start → HH:MM:SS end)`.
+
+---
 
 **Notes:**
 - Never modify `data/mapped-ingredients.txt`.
 - All output goes to `output/`. Never write files elsewhere.
-- When processing a batch from `input.txt`, each domain produces its own dated MD file. The CSV is updated once at the end across all URLs.
-- This command is designed to work on any hair/beauty product website — adapt product link detection and ingredient extraction heuristics based on what you observe on the actual page.
-- **Scope:** Only hair colour, hair dye, and dye-adjacent products are scraped in full. A shampoo or conditioner qualifies if marketed for colour-treated hair or if it contains dye actives. When in doubt, scrape it and let the ingredient check decide.
+- Adapt product link detection and extraction heuristics based on what you observe on the actual page.
+- **Scope:** Only hair colour, dye, and dye-adjacent products. A shampoo/conditioner qualifies if marketed for colour-treated hair or if it contains dye actives. When in doubt, scrape and let the post-scrape check decide.

@@ -9,3 +9,6 @@ output/archive/*.csv
 
 # Playwright MCP temp logs (auto-cleaned on session stop)
 .playwright-mcp/
+
+# Node dependencies
+node_modules/

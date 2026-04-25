@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Prototype — Dashboard</title>
+  <style>body{font-family:system-ui,Segoe UI,Roboto,Helvetica,Arial;margin:22px;color:#0b1226}header{margin-bottom:12px} .panel{background:#fff;border:1px solid #e6e9ef;padding:14px;border-radius:8px;margin-bottom:12px} .row{display:flex;gap:12px} .card{flex:1;padding:12px;background:#f7f9fc;border-radius:8px}</style>
+</head>
+<body data-page="dashboard" class="bg-gray-50 min-h-screen">
+  <div class="max-w-4xl mx-auto p-6">
+    <a class="text-sm text-gray-600 hover:underline" href="index.html">← Index</a>
+    <header class="mt-4 mb-4">
+      <h1 class="text-2xl font-semibold">Dashboard — Job Progress</h1>
+      <p class="text-sm text-gray-600">Overview of recent runs and live progress.</p>
+    </header>
+
+    <section class="grid grid-cols-2 gap-4 mb-4">
+      <div class="bg-white p-4 rounded-lg shadow-sm">
+        <h3 class="font-medium">Recent Runs</h3>
+        <ul class="mt-2 text-sm text-gray-700">
+          <li>run-2026-04-24 — Completed — 12 products</li>
+          <li>run-2026-04-23 — Partial — 8 products (2 errors)</li>
+          <li>run-2026-04-22 — Running — 3/12 processed</li>
+        </ul>
+      </div>
+      <div class="bg-white p-4 rounded-lg shadow-sm">
+        <h3 class="font-medium">Quick Actions</h3>
+        <div class="mt-2 text-sm">
+          <a class="text-indigo-600 hover:underline" href="job_submission.html">New scrape job</a>
+          <div class="mt-2"><a class="text-indigo-600 hover:underline" href="results.html">View results</a></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white p-4 rounded-lg shadow-sm">
+      <h3 class="font-medium">Live Progress (run-2026-04-22)</h3>
+      <p id="live-progress" class="mt-2 text-sm text-gray-700">Processed: 0 / 12 • Status: Connecting • Errors: 0</p>
+      <p class="mt-2"><a class="text-indigo-600 hover:underline" href="results.html">Open run details</a></p>
+    </section>
+  </div>
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>body{font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial}</style>
+  <script src="proto.js"></script>
+</body>
+</html>

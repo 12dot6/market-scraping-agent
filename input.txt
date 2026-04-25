@@ -10,6 +10,4 @@
 # https://www.loreal-paris.co.uk/hair-colour
 # https://www.schwarzkopf.co.uk/en-GB/products/hair-colour.html
 # https://www.wella.com/professional/en-GB/hair-products/hair-colour
-https://www.loreal-paris.co.uk/excellence/excellence-creme-3-natural-darkest-brown-permanent-hair-dye
-https://www.loreal-paris.co.uk/preference/preference-vivids-permanent-gel-hair-dye-bright-red-8-624
-https://www.ulta.com/p/colorcharm-permanent-cream-hair-color-pimprod2051483?sku=2639163
+https://www.ulta.com/p/permanent-color-kit-pimprod2029786?sku=2591077
