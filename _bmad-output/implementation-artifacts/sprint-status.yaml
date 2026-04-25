@@ -1,0 +1,79 @@
+# generated: 2026-04-25
+# last_updated: 2026-04-25
+# project: formulation-wiki
+# project_key: NOKEY
+# tracking_system: file-system
+# story_location: _bmad-output/implementation-artifacts
+
+# STATUS DEFINITIONS:
+# ==================
+# Epic Status:
+#   - backlog: Epic not yet started
+#   - in-progress: Epic actively being worked on
+#   - done: All stories in epic completed
+#
+# Epic Status Transitions:
+#   - backlog → in-progress: Automatically when first story is created (via create-story)
+#   - in-progress → done: Manually when all stories reach 'done' status
+#
+# Story Status:
+#   - backlog: Story only exists in epic file
+#   - ready-for-dev: Story file created in stories folder
+#   - in-progress: Developer actively working on implementation
+#   - review: Ready for code review (via Dev's code-review workflow)
+#   - done: Story completed
+#
+# Retrospective Status:
+#   - optional: Can be completed but not required
+#   - done: Retrospective has been completed
+#
+# WORKFLOW NOTES:
+# ===============
+# - Epic transitions to 'in-progress' automatically when first story is created
+# - Stories can be worked in parallel if team capacity allows
+# - Developer typically creates next story after previous one is 'done' to incorporate learnings
+# - Dev moves story to 'review', then runs code-review (fresh context, different LLM recommended)
+
+generated: 2026-04-25
+last_updated: 2026-04-25  # e1-s4 review patches applied
+project: formulation-wiki
+project_key: NOKEY
+tracking_system: file-system
+story_location: _bmad-output/implementation-artifacts
+
+development_status:
+  # E1 — Backend Foundation
+  epic-1: in-progress
+  e1-s1-project-scaffold-docker-skeleton: review
+  e1-s2-playwright-scraper-service: done
+  e1-s3-claude-api-classifier-service: done
+  e1-s4-job-runner-rest-endpoints-for-job-management: done
+  epic-1-retrospective: optional
+
+  # E2 — Job Pipeline & Live Progress
+  epic-2: in-progress
+  e2-s1-sse-stream-endpoint: review
+  e2-s2-home-screen-url-input-screen-1: review
+  e2-s3-live-progress-screen-screen-2: review
+  epic-2-retrospective: optional
+
+  # E3 — Results UI & Export
+  epic-3: in-progress
+  e3-s1-productcard-component: review
+  e3-s2-ingredient-table-component-per-run: in-progress
+  e3-s3-run-results-page-with-tabs-and-export-bar-screen-3: ready-for-dev
+  e3-s4-export-endpoints: ready-for-dev
+  epic-3-retrospective: optional
+
+  # E4 — Global Ingredients & Deployment
+  epic-4: in-progress
+  e4-s1-global-ingredients-screen-screen-4: ready-for-dev
+  e4-s2-docker-single-container-build-data-migration: ready-for-dev
+  epic-4-retrospective: optional
+
+  # E5 — Polish & Quality
+  epic-5: in-progress
+  e5-s1-empty-states-loading-skeletons: ready-for-dev
+  e5-s2-error-handling-user-feedback: ready-for-dev
+  e5-s3-mobile-responsiveness: ready-for-dev
+  epic-5-retrospective: optional
